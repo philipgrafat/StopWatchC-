@@ -32,6 +32,8 @@ namespace StopWatch
             InitializeComponent();
         }
 
+        #region TimeLabel
+
         public void ChangeTimeLabel(TimeSpan time)
         {
             //https://msdn.microsoft.com/en-us/library/ms171728.aspx
@@ -62,27 +64,22 @@ namespace StopWatch
             }
         }
 
-        public void LapsChanged(List<Lap> laps)
+        #endregion
+
+        #region ToggleButton
+
+        public void ApplyStartButtonStyle() => toggleButton.Image = Properties.Resources.play;
+
+        public void ApplyPauseButtonStyle() => toggleButton.Image = Properties.Resources.pause;
+
+        private void toggleButton_Click(object sender, EventArgs e)
         {
-            lapsView.Items.Clear();
-
-            // Begin with last Lap
-            for (int i = laps.Count; i > 0; i--)
-            {
-                var lap = laps[i-1];
-                var item = new ListViewItem($"Lap {i}");
-
-                item.SubItems.Add($"{lap.Duration:%h\\:mm\\:ss\\.ff}");
-                item.SubItems.Add($"{lap.Time:%h\\:mm\\:ss\\.ff}");
-
-                lapsView.Items.Add(item);
-            }
+            OnToggleButtonPressed?.Invoke(this, null);
         }
 
-        public void ClearLaps()
-        {
-            lapsView.Items.Clear();
-        }
+        #endregion
+
+        #region ResetButton
 
         public void EnableResetButton()
         {
@@ -108,6 +105,19 @@ namespace StopWatch
             resetButton.Cursor = resetLabel.Cursor = resetIcon.Cursor = Cursors.Default;
         }
 
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            OnResetButtonPressed?.Invoke(this, null);
+        }
+
+        #endregion
+
+        #region Laps
+
+        /*
+         * Button
+         */
+
         public void EnableLapButton()
         {
             lapButton.Click += lapButton_Click;
@@ -132,19 +142,44 @@ namespace StopWatch
             lapButton.Cursor = lapLabel.Cursor = lapIcon.Cursor = Cursors.Default;
         }
 
-        public void ApplyStartButtonStyle() => toggleButton.Image = Properties.Resources.play;
-
-        public void ApplyPauseButtonStyle() => toggleButton.Image = Properties.Resources.pause;
-
-        private void resetButton_Click(object sender, EventArgs e)
+        private void lapButton_Click(object sender, EventArgs e)
         {
-            OnResetButtonPressed?.Invoke(this, null);
+            if (DateTime.Now - _lapButtonLastPress > new TimeSpan(10)) // Avoid double-clicking
+            {
+                OnLapsButtonPressed?.Invoke(sender, e);
+                _lapButtonLastPress = DateTime.Now;
+            }
         }
 
-        private void toggleButton_Click(object sender, EventArgs e)
+        /*
+         * ListView
+         */
+
+        public void ChangeLaps(List<Lap> laps)
         {
-            OnToggleButtonPressed?.Invoke(this, null);
+            lapsView.Items.Clear();
+
+            // Begin with last Lap
+            for (int i = laps.Count; i > 0; i--)
+            {
+                var lap = laps[i - 1];
+                var item = new ListViewItem($"Lap {i}");
+
+                item.SubItems.Add($"{lap.Duration:%h\\:mm\\:ss\\.ff}");
+                item.SubItems.Add($"{lap.Time:%h\\:mm\\:ss\\.ff}");
+
+                lapsView.Items.Add(item);
+            }
         }
+
+        public void ClearLaps()
+        {
+            lapsView.Items.Clear();
+        }
+
+        #endregion
+
+        #region HTLLogo
 
         private void htlLogo_Click(object sender, EventArgs e)
             => Process.Start(new ProcessStartInfo("https://www.htl-anichstrasse.tirol/"));
@@ -161,14 +196,10 @@ namespace StopWatch
             htlLogo.Cursor = Cursors.Default;
         }
 
-        private void lapButton_Click(object sender, EventArgs e)
-        {
-            if (DateTime.Now - _lapButtonLastPress > new TimeSpan(10)) // Avoid double-clicking
-            {
-                OnLapsButtonPressed?.Invoke(sender, e);
-                _lapButtonLastPress = DateTime.Now;
-            }
-        }
+        #endregion
+
+
+        
     }
 }
 

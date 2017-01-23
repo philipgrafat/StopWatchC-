@@ -55,7 +55,7 @@ namespace StopWatch.Presenter
         private void LapButtonPressed(object sender, EventArgs e)
         {
             _model.Lap();
-            _view.LapsChanged(_model.Laps);
+            _view.ChangeLaps(_model.Laps);
         }
 
         private void ResetButtonPressed(object sender, EventArgs e)
