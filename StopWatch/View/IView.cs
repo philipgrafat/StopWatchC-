@@ -10,7 +10,7 @@ namespace StopWatch
         event EventHandler<EventArgs> OnLapsButtonPressed;
         event EventHandler<EventArgs> OnResetButtonPressed;
         void ChangeTimeLabel(TimeSpan time);
-        void LapsChanged(List<Lap> laps);
+        void ChangeLaps(List<Lap> laps);
 
         void EnableResetButton();
         void DisableResetButton();
